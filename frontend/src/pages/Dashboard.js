@@ -17,12 +17,13 @@ const fetchBanks = async () => {
   try {
     const token = await getToken();
 
-    const res = await axios.get("http://localhost:5000/api/banks/user", {
+    const res = await axios.get(`${backendUrl}/api/banks/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
+    setBanks(res.data);
     console.log("✅ Banks:", res.data);
   } catch (err) {
     console.error("❌ Error fetching banks:", err);
@@ -33,13 +34,27 @@ const handleSave = async (newBankData) => {
   try {
     const token = await getToken();
 
-    await axios.post("http://localhost:5000/api/banks", newBankData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    if (editBank) {
+      // Update existing bank
+      await axios.put(`${backendUrl}/api/banks/${editBank._id}`, newBankData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("✅ Bank updated");
+    } else {
+      // Add new bank
+      await axios.post(`${backendUrl}/api/banks`, newBankData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("✅ Bank added");
+    }
 
-    console.log("✅ Bank added");
+    setModalOpen(false);
+    setEditBank(null);
+    fetchBanks(); // Refresh the banks list
   } catch (err) {
     console.error("❌ Error saving bank: ", err);
   }
@@ -48,7 +63,13 @@ const handleSave = async (newBankData) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${backendUrl}/api/banks/${id}`);
+      const token = await getToken();
+      
+      await axios.delete(`${backendUrl}/api/banks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       fetchBanks();
     } catch (error) {
       console.error("Error deleting bank:", error);

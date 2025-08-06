@@ -47,14 +47,11 @@ exports.addBankAccount = async (req, res) => {
 };
 
 // Get all bank accounts for the logged-in user
-
-const getUserBankAccounts = async (req, res) => {
+exports.getUserBankAccounts = async (req, res) => {
   try {
-    console.log("🔐 Clerk Auth req.auth:", req.auth);
-
-    const { userId } = req.auth;
-
-    const accounts = await BankAccount.find({ userId });
+    const user = await getUserIdFromRequest(req);
+    
+    const accounts = await BankAccount.find({ user: user._id });
     res.status(200).json(accounts);
   } catch (error) {
     console.error("❌ Error in getUserBankAccounts:", error);
