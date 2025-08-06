@@ -1,0 +1,6 @@
+nohup: ignoring input
+[dotenv@17.2.1] injecting env (3) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+🚀 Server running on port 5000
+🔗 Backend URL: http://localhost:5000
+✅ MongoDB connected successfully
+📊 Database: leaderboard
