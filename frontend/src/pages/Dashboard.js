@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { useUser } from "@clerk/clerk-react";
 import BankCard from "../components/Bankcard";
 import AddBankModal from "../components/AddBankModal";
-import { useAuth } from "@clerk/clerk-react";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-export default function Dashboard() {
-  const { user } = useUser();
-  const { getToken } = useAuth();
+export default function Dashboard({ token, user, onLogout }) {
   const [banks, setBanks] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editBank, setEditBank] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchBanks = async () => {
+  const fetchBanks = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const token = await getToken();
+      
+      console.log("🔍 Debug: Token received =", token ? "Token exists" : "No token");
+      console.log("🔍 Debug: Token starts with =", token ? token.substring(0, 20) + "..." : "No token");
+      console.log("🔍 Debug: Backend URL =", backendUrl);
 
       const res = await axios.get(`${backendUrl}/api/banks/user`, {
         headers: {
@@ -36,11 +35,14 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   const handleSave = async (newBankData) => {
     try {
-      const token = await getToken();
+      console.log("🔍 Debug: handleSave - Token received =", token ? "Token exists" : "No token");
+      console.log("🔍 Debug: handleSave - Token starts with =", token ? token.substring(0, 20) + "..." : "No token");
+      console.log("🔍 Debug: handleSave - Backend URL =", backendUrl);
+      console.log("🔍 Debug: handleSave - Data to send =", newBankData);
 
       if (editBank) {
         // Update existing bank
@@ -75,8 +77,6 @@ export default function Dashboard() {
     }
 
     try {
-      const token = await getToken();
-      
       await axios.delete(`${backendUrl}/api/banks/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,23 +102,10 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const syncUserToDB = async () => {
-      if (user?.id) {
-        try {
-          await axios.post(`${backendUrl}/api/users/sync`, {
-            clerkId: user.id,
-            email: user.primaryEmailAddress?.emailAddress,
-            username: user.username || user.firstName || "Unknown",
-          });
-          fetchBanks();
-        } catch (err) {
-          console.error("❌ Error syncing user:", err);
-          setError("Failed to sync user data. Please refresh the page.");
-        }
-      }
-    };
-    syncUserToDB();
-  }, [user]);
+    if (token) {
+      fetchBanks();
+    }
+  }, [token, fetchBanks]);
 
   return (
     <div className="container">
@@ -132,11 +119,19 @@ export default function Dashboard() {
 
       {/* Dashboard Header */}
       <div className="header">
-        <h2>My Bank Accounts</h2>
-        <button className="btn btn-primary large" onClick={handleAddNew}>
-          <span>+</span>
-          Add New Account
-        </button>
+        <div>
+          <h2>My Bank Accounts</h2>
+          <p>Welcome, {user?.username || user?.email}!</p>
+        </div>
+        <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+          <button className="btn btn-primary large" onClick={handleAddNew}>
+            <span>+</span>
+            Add New Account
+          </button>
+          <button className="btn btn-secondary" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Error Message */}
