@@ -3,24 +3,51 @@ const User = require("../models/user");
 
 // Utility to get or create a MongoDB user based on Clerk session
 const getUserIdFromRequest = async (req) => {
-  const clerkUser = req.auth;
+  console.log("🔍 Full req object keys:", Object.keys(req));
+  console.log("🔍 req.auth:", req.auth);
+  console.log("🔍 req.user:", req.user); 
+  console.log("🔍 req.headers:", req.headers);
+  
+  // Try different ways Clerk might attach user info
+  const clerkUser = req.auth || req.user;
 
-  if (!clerkUser || !clerkUser.userId) {
-    throw new Error("Unauthorized: Clerk user not found");
+  if (!clerkUser) {
+    console.error("❌ No Clerk user found in request");
+    throw new Error("Unauthorized: No authentication data found");
   }
 
-  let user = await User.findOne({ clerkId: clerkUser.userId });
+  const userId = clerkUser.userId || clerkUser.sub || clerkUser.id;
+  
+  if (!userId) {
+    console.error("❌ No userId found in Clerk data:", clerkUser);
+    throw new Error("Unauthorized: User ID not found");
+  }
+
+  let user = await User.findOne({ clerkId: userId });
 
   if (!user) {
-    const sessionClaims = clerkUser.sessionClaims || {};
-    const email = sessionClaims.email || "noemail@clerk.com";
-    const username = sessionClaims.username || email;
+    console.log("📝 Creating new user for clerkId:", userId);
+    
+    // Try to get email and username from different possible locations
+    const email = clerkUser.email || 
+                  clerkUser.emailAddress || 
+                  clerkUser.primaryEmailAddress?.emailAddress ||
+                  clerkUser.sessionClaims?.email || 
+                  "noemail@clerk.com";
+                  
+    const username = clerkUser.username || 
+                     clerkUser.firstName || 
+                     clerkUser.sessionClaims?.username || 
+                     email.split('@')[0];
 
     user = await User.create({
-      clerkId: clerkUser.userId,
+      clerkId: userId,
       email,
       username,
     });
+    console.log("✅ User created:", user);
+  } else {
+    console.log("✅ User found:", user);
   }
 
   return user;
