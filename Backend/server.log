@@ -1,6 +1,77 @@
 nohup: ignoring input
-[dotenv@17.2.1] injecting env (3) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.1] injecting env (3) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
 🚀 Server running on port 5000
 🔗 Backend URL: http://localhost:5000
 ✅ MongoDB connected successfully
 📊 Database: leaderboard
+🔧 No authentication found, creating default user for testing...
+✅ Default test user created: {
+  clerkId: 'default-test-user',
+  username: 'Test User',
+  email: 'test@example.com',
+  _id: new ObjectId('689367483c9a422f88bda09a'),
+  __v: 0
+}
+✅ Using default test user for request
+📋 Fetching user bank accounts...
+🔍 Getting user from request...
+Auth object: {
+  userId: 'default-test-user',
+  sessionClaims: { email: 'test@example.com', username: 'Test User' }
+}
+✅ Clerk user ID: default-test-user
+✅ User found: {
+  _id: new ObjectId('689367483c9a422f88bda09a'),
+  clerkId: 'default-test-user',
+  username: 'Test User',
+  email: 'test@example.com',
+  __v: 0
+}
+✅ Found 0 accounts for user
+🔧 No authentication found, creating default user for testing...
+✅ Using default test user for request
+📝 Adding new bank account...
+🔍 Getting user from request...
+Auth object: {
+  userId: 'default-test-user',
+  sessionClaims: { email: 'test@example.com', username: 'Test User' }
+}
+✅ Clerk user ID: default-test-user
+✅ User found: {
+  _id: new ObjectId('689367483c9a422f88bda09a'),
+  clerkId: 'default-test-user',
+  username: 'Test User',
+  email: 'test@example.com',
+  __v: 0
+}
+✅ Bank account saved: {
+  user: new ObjectId('689367483c9a422f88bda09a'),
+  ifscCode: 'TEST0001234',
+  branchName: 'Test Branch',
+  bankName: 'Test Bank',
+  accountNumber: '1234567890',
+  accountHolderName: 'John Doe',
+  _id: new ObjectId('689367573c9a422f88bda0a0'),
+  __v: 0
+}
+🔧 No authentication found, creating default user for testing...
+✅ Using default test user for request
+📋 Fetching user bank accounts...
+🔍 Getting user from request...
+Auth object: {
+  userId: 'default-test-user',
+  sessionClaims: { email: 'test@example.com', username: 'Test User' }
+}
+✅ Clerk user ID: default-test-user
+✅ User found: {
+  _id: new ObjectId('689367483c9a422f88bda09a'),
+  clerkId: 'default-test-user',
+  username: 'Test User',
+  email: 'test@example.com',
+  __v: 0
+}
+✅ Found 1 accounts for user
+🔧 No authentication found, creating default user for testing...
+✅ Using default test user for request
+👨‍💼 Admin: Fetching all bank accounts...
+✅ Found 7 total accounts
