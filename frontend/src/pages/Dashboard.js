@@ -3,7 +3,7 @@ import axios from "axios";
 import BankCard from "../components/Bankcard";
 import AddBankModal from "../components/AddBankModal";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 export default function Dashboard({ token, user, onLogout }) {
   const [banks, setBanks] = useState([]);
@@ -31,7 +31,11 @@ export default function Dashboard({ token, user, onLogout }) {
       console.log("✅ Banks:", res.data);
     } catch (err) {
       console.error("❌ Error fetching banks:", err);
-      setError("Failed to fetch bank accounts. Please try again.");
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
+        setError("Your session has expired. Please log in again.");
+      } else {
+        setError("Failed to fetch bank accounts. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

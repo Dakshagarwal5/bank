@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 export default function Login({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);

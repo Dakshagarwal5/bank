@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 export default function Admin({ token }) {
   const [banks, setBanks] = useState([]);
@@ -42,7 +42,11 @@ export default function Admin({ token }) {
       calculateStats(res.data);
     } catch (error) {
       console.error("Error fetching all banks:", error);
-      setError("Failed to fetch bank accounts. Please try again.");
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        setError("Your session has expired or you do not have access. Please log in again.");
+      } else {
+        setError("Failed to fetch bank accounts. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -66,7 +70,11 @@ export default function Admin({ token }) {
       setBanks(res.data);
     } catch (error) {
       console.error("Error searching banks:", error);
-      setError("Search failed. Please try again.");
+      if (error?.response?.status === 401 || error?.response?.status === 403) {
+        setError("Your session has expired or you do not have access. Please log in again.");
+      } else {
+        setError("Search failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
