@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useAuth } from "@clerk/clerk-react";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-export default function Admin() {
+export default function Admin({ token }) {
   const [banks, setBanks] = useState([]);
   const [allBanks, setAllBanks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,7 +14,6 @@ export default function Admin() {
     uniqueBanks: 0,
     uniqueUsers: 0
   });
-  const { getToken } = useAuth();
 
   const calculateStats = (bankData) => {
     const uniqueBanks = new Set(bankData.map(bank => bank.bankName)).size;
@@ -32,7 +30,6 @@ export default function Admin() {
     try {
       setLoading(true);
       setError(null);
-      const token = await getToken();
       
       const res = await axios.get(`${backendUrl}/api/banks/all`, {
         headers: {
@@ -59,7 +56,6 @@ export default function Admin() {
 
     try {
       setLoading(true);
-      const token = await getToken();
       
       const res = await axios.get(`${backendUrl}/api/banks/search?query=${searchQuery}`, {
         headers: {
@@ -107,6 +103,7 @@ export default function Admin() {
 
   useEffect(() => {
     fetchAllBanks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -115,6 +112,7 @@ export default function Admin() {
     }, 500);
 
     return () => clearTimeout(delayedSearch);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   return (
@@ -250,12 +248,12 @@ export default function Admin() {
                   </p>
                 ) : (
                   <p style={{ margin: 0 }}>
-                    Showing all <strong>{banks.length}</strong> bank accounts
+                    Showing <strong>{banks.length}</strong> total account{banks.length !== 1 ? 's' : ''}
                   </p>
                 )}
               </div>
 
-              {/* Bank Accounts Table */}
+              {/* Results Table */}
               <div className="table-container">
                 <table className="bank-table">
                   <thead>
@@ -263,36 +261,22 @@ export default function Admin() {
                       <th>Bank</th>
                       <th>Account Holder</th>
                       <th>Account Number</th>
-                      <th>Branch</th>
                       <th>IFSC Code</th>
-                      <th>User</th>
+                      <th>Branch</th>
+                      <th>User Email</th>
                     </tr>
                   </thead>
                   <tbody>
                     {banks.map((bank) => (
                       <tr key={bank._id}>
                         <td>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 'var(--space-2)' 
-                          }}>
-                            <span style={{ fontSize: '1.125rem' }}>
-                              {getBankIcon(bank.bankName)}
-                            </span>
-                            <strong>{bank.bankName}</strong>
-                          </div>
+                          <span style={{ marginRight: 'var(--space-2)' }}>
+                            {getBankIcon(bank.bankName)}
+                          </span>
+                          {bank.bankName}
                         </td>
-                        <td>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 'var(--space-2)' 
-                          }}>
-                            <span>👤</span>
-                            {bank.accountHolderName}
-                          </div>
-                        </td>
+                        <td>{bank.accountHolderName || 'N/A'}</td>
+                        <td>{formatAccountNumber(bank.accountNumber)}</td>
                         <td>
                           <code style={{
                             background: 'var(--gray-100)',
@@ -301,42 +285,11 @@ export default function Admin() {
                             fontSize: '0.75rem',
                             fontFamily: 'monospace'
                           }}>
-                            {formatAccountNumber(bank.accountNumber)}
-                          </code>
-                        </td>
-                        <td>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 'var(--space-2)' 
-                          }}>
-                            <span>🏪</span>
-                            {bank.branchName}
-                          </div>
-                        </td>
-                        <td>
-                          <code style={{
-                            background: 'var(--primary-50)',
-                            color: 'var(--primary-700)',
-                            padding: 'var(--space-1) var(--space-2)',
-                            borderRadius: 'var(--radius-sm)',
-                            fontSize: '0.75rem',
-                            fontFamily: 'monospace',
-                            fontWeight: 'var(--font-weight-semibold)'
-                          }}>
                             {bank.ifscCode}
                           </code>
                         </td>
-                        <td>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 'var(--space-2)' 
-                          }}>
-                            <span>📧</span>
-                            {bank.user?.email || 'N/A'}
-                          </div>
-                        </td>
+                        <td>{bank.branchName || 'N/A'}</td>
+                        <td>{bank.user?.email || 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>
