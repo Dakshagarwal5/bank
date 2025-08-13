@@ -12,12 +12,18 @@ const Navbar = ({ token, user, onLogout }) => (
           <>
             <Link to="/">Dashboard</Link>
             <Link to="/admin">Admin Panel</Link>
+            <span style={{ color: "#fff", opacity: 0.9 }}>
+              {user?.username || user?.email}
+            </span>
             <button className="btn btn-secondary small" onClick={onLogout}>
               Logout
             </button>
           </>
         ) : (
-          <Link to="/">Home</Link>
+          <>
+            <Link to="/">Home</Link>
+            <Link to="/">Login</Link>
+          </>
         )}
       </div>
     </div>

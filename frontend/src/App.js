@@ -21,16 +21,20 @@ function App() {
     setUser(null);
   };
 
-  if (!token) {
-    return <Login onLogin={handleLogin} />;
-  }
-
   return (
     <div className="App">
       <Navbar token={token} user={user} onLogout={handleLogout} />
       <Routes>
-        <Route path="/" element={<Dashboard token={token} user={user} onLogout={handleLogout} />} />
-        <Route path="/admin" element={<Admin token={token} user={user} onLogout={handleLogout} />} />
+        <Route path="/" element={token ? (
+          <Dashboard token={token} user={user} onLogout={handleLogout} />
+        ) : (
+          <Login onLogin={handleLogin} />
+        )} />
+        <Route path="/admin" element={token ? (
+          <Admin token={token} user={user} onLogout={handleLogout} />
+        ) : (
+          <Login onLogin={handleLogin} />
+        )} />
       </Routes>
     </div>
   );
